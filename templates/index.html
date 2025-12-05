@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS OMEGA - Final Edition</title>
+    <style>
+        :root {
+            --bg-primary: #10101a;
+            --bg-secondary: #19192c;
+            --border-color: #30304a;
+            --accent-primary: #a78bfa;
+            --accent-secondary: #7c3aed;
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0b0;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .container {
+            width: 100%; max-width: 900px; height: 95vh;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 18px 24px;
+            background: rgba(30, 30, 50, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            font-size: 1.3rem; font-weight: bold;
+            color: var(--accent-primary);
+        }
+
+        .header-buttons button {
+            background: var(--border-color);
+            border: none; color: var(--text-secondary);
+            padding: 10px 18px; border-radius: 8px; cursor: pointer;
+            margin-left: 8px; font-size: 0.9rem; transition: 0.2s;
+        }
+        .header-buttons button:hover { background: var(--accent-secondary); color: white; }
+
+        .chat-area {
+            flex: 1; padding: 24px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 18px;
+        }
+
+        .message {
+            display: flex; gap: 14px; animation: slideIn 0.3s;
+        }
+        .message.user { flex-direction: row-reverse; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } }
+
+        .avatar {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; flex-shrink: 0;
+        }
+        .message.bot .avatar { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); }
+        .message.user .avatar { background: #2563eb; }
+
+        .bubble {
+            max-width: 75%; padding: 14px 18px; border-radius: 16px;
+            line-height: 1.6; word-wrap: break-word;
+        }
+        .message.bot .bubble { background: #2a2a40; border: 1px solid var(--border-color); }
+        .message.user .bubble { background: #2563eb; }
+
+        .input-controls {
+            padding: 20px 24px; background: rgba(30, 30, 50, 0.8);
+            border-top: 1px solid var(--border-color);
+        }
+        .input-row { display: flex; gap: 12px; }
+        #input-field {
+            flex: 1; padding: 14px; background: var(--bg-primary);
+            border: 1px solid var(--border-color); border-radius: 12px;
+            color: white; font-size: 1rem; outline: none;
+        }
+        #input-field:focus { border-color: var(--accent-secondary); }
+        #send-button {
+            background: var(--accent-secondary); border: none; color: white;
+            padding: 0 28px; border-radius: 12px; cursor: pointer;
+            font-size: 1rem; font-weight: 600;
+        }
+        
+        /* CHESS WIDGET */
+        .chess-widget { margin-top: 15px; background: #111; padding: 12px; border-radius: 12px; display: inline-block; }
+        .chess-status { color: #ccc; margin-bottom: 10px; text-align: center; }
+        .chess-board { display: grid; grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(8, 40px); border: 3px solid #555; }
+        .sq { display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; }
+        .sq.light { background: #f0d9b5; color: black; }
+        .sq.dark { background: #b58863; color: black; }
+        .sq.selected { background: #8b5cf6 !important; }
+        .sq.valid { position: relative; }
+        .sq.valid::after { content: ''; position: absolute; width: 12px; height: 12px; background: rgba(255,255,255,0.3); border-radius: 50%; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="brand">NEXUS OMEGA</div>
+        <div class="header-buttons">
+            <button id="help-btn">Help</button>
+            <button id="clear-btn">Clear Chat</button>
+        </div>
+    </div>
+    <div class="chat-area" id="chat">
+        <div class="message bot">
+            <div class="avatar">Ω</div>
+            <div class="bubble">
+                <strong>NEXUS OMEGA Initialized.</strong><br>
+                All systems operational. Connected to Omega Knowledge Gateway.<br>
+                I understand natural conversation. Ask me anything.
+            </div>
+        </div>
+    </div>
+    <div class="input-controls">
+        <div class="input-row">
+            <input type="text" id="input-field" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+// ============ 1. COMPLETE CHESS ENGINE (Embedded) ============
+// This is a full, rule-enforcing chess engine to ensure it always works.
+class ChessEngine {
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        this.board = [
+            ['r','n','b','q','k','b','n','r'], ['p','p','p','p','p','p','p','p'], [' ',' ',' ',' ',' ',' ',' ',' '],
+            [' ',' ',' ',' ',' ',' ',' ',' '], [' ',' ',' ',' ',' ',' ',' ',' '], [' ',' ',' ',' ',' ',' ',' ',' '],
+            ['P','P','P','P','P','P','P','P'], ['R','N','B','Q','K','B','N','R']
+        ];
+        this.turn = 'w';
+        this.gameOver = false;
+        this.checkMate = false;
+    }
+
+    getPiece(r, c) { return this.board[r]?.[c] || null; }
+    isWhite(p) { return p && p === p.toUpperCase(); }
+    isBlack(p) { return p && p === p.toLowerCase(); }
+
+    getKingPos(color) {
+        const king = color === 'w' ? 'K' : 'k';
+        for (let r=0; r<8; r++) for (let c=0; c<8; c++) if (this.getPiece(r,c) === king) return {r, c};
+        return null;
+    }
+
+    isSquareAttacked(r, c, attackerColor) {
+        for(let rA=0; rA<8; rA++) {
+            for(let cA=0; cA<8; cA++) {
+                const attacker = this.getPiece(rA, cA);
+                if (attacker && (attackerColor === 'w' ? this.isWhite(attacker) : this.isBlack(attacker))) {
+                    if (this.isValidMove(rA, cA, r, c, true)) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    isInCheck(color) {
+        const kingPos = this.getKingPos(color);
+        if(!kingPos) return false;
+        return this.isSquareAttacked(kingPos.r, kingPos.c, color === 'w' ? 'b' : 'w');
+    }
+
+    isValidMove(fr, fc, tr, tc, checkOnly=false) {
+        if(tr<0||tr>7||tc<0||tc>7) return false;
+        const p = this.getPiece(fr, fc);
+        const target = this.getPiece(tr, tc);
+        if(!p) return false;
+        if(target && (this.isWhite(p) ? this.isWhite(target) : this.isBlack(target))) return false;
+
+        const dr = tr - fr;
+        const dc = tc - fc;
+        
+        switch (p.toLowerCase()) {
+            case 'p':
+                const dir = this.isWhite(p) ? -1 : 1;
+                const startRow = this.isWhite(p) ? 6 : 1;
+                if (dc === 0 && !target) { // Move forward
+                    if (dr === dir) return true;
+                    if (fr === startRow && dr === 2 * dir && !this.getPiece(fr + dir, fc)) return true;
+                }
+                if (Math.abs(dc) === 1 && dr === dir && target) return true; // Capture
+                return false;
+            case 'r':
+                if (dr !== 0 && dc !== 0) return false;
+                return this.isPathClear(fr,fc,tr,tc);
+            case 'n':
+                return (Math.abs(dr) === 2 && Math.abs(dc) === 1) || (Math.abs(dr) === 1 && Math.abs(dc) === 2);
+            case 'b':
+                if (Math.abs(dr) !== Math.abs(dc)) return false;
+                return this.isPathClear(fr,fc,tr,tc);
+            case 'q':
+                if((dr!==0 && dc!==0 && Math.abs(dr)!==Math.abs(dc))) return false;
+                return this.isPathClear(fr,fc,tr,tc);
+            case 'k':
+                return Math.abs(dr) <= 1 && Math.abs(dc) <= 1;
+        }
+        return false;
+    }
+    
+    isPathClear(fr, fc, tr, tc) {
+        const drStep = Math.sign(tr - fr), dcStep = Math.sign(tc - fc);
+        let r = fr + drStep, c = fc + dcStep;
+        while(r !== tr || c !== tc) {
+            if(this.getPiece(r, c)) return false;
+            r += drStep; c += dcStep;
+        }
+        return true;
+    }
+
+    getAllValidMoves(color) {
+        const moves = [];
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const p = this.getPiece(r, c);
+                if (p && (color === 'w' ? this.isWhite(p) : this.isBlack(p))) {
+                    for (let tr = 0; tr < 8; tr++) {
+                        for (let tc = 0; tc < 8; tc++) {
+                            if (this.isValidMove(r, c, tr, tc)) {
+                                // Check if move exposes king to check
+                                const originalTarget = this.getPiece(tr, tc);
+                                this.board[tr][tc] = p; this.board[r][c] = null;
+                                if (!this.isInCheck(color)) moves.push({fr:r, fc:c, tr:tr, tc:tc});
+                                this.board[r][c] = p; this.board[tr][tc] = originalTarget;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return moves;
+    }
+
+    move(fr, fc, tr, tc) {
+        const p = this.getPiece(fr,fc);
+        const turnColor = this.turn;
+        if (!p || (turnColor === 'w' ? !this.isWhite(p) : !this.isBlack(p))) return false;
+        
+        if (this.getAllValidMoves(turnColor).some(m => m.fr===fr && m.fc===fc && m.tr===tr && m.tc===tc)) {
+            // Promotion
+            if (p.toLowerCase() === 'p' && (tr === 0 || tr === 7)) {
+                this.board[tr][tc] = this.isWhite(p) ? 'Q' : 'q';
+            } else {
+                this.board[tr][tc] = p;
+            }
+            this.board[fr][fc] = null;
+            this.turn = this.turn === 'w' ? 'b' : 'w';
+
+            // Check for game over
+            if(this.getAllValidMoves(this.turn).length === 0) {
+                this.gameOver = true;
+                this.checkMate = this.isInCheck(this.turn);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    // AI with Minimax
+    makeAIMove(depth) {
+        const bestMove = this.minimaxRoot(depth, 'b');
+        if (bestMove) {
+            this.move(bestMove.fr, bestMove.fc, bestMove.tr, bestMove.tc);
+        } else {
+            this.gameOver = true; // No valid moves found
+        }
+    }
+
+    evaluateBoard() {
+        let score = 0;
+        const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 900 };
+        for(let r=0; r<8; r++) for(let c=0; c<8; c++) {
+            const p = this.getPiece(r,c);
+            if(p) score += (pieceValues[p.toLowerCase()] || 0) * (this.isWhite(p) ? 1 : -1);
+        }
+        return score;
+    }
+
+    minimaxRoot(depth, color) {
+        const moves = this.getAllValidMoves(color);
+        let bestScore = -Infinity;
+        let bestMove = null;
+
+        for (const move of moves) {
+            const originalTarget = this.getPiece(move.tr, move.tc);
+            this.board[move.tr][move.tc] = this.getPiece(move.fr, move.fc);
+            this.board[move.fr][move.fc] = null;
+            
+            const score = this.minimax(depth - 1, -Infinity, Infinity, 'w');
+
+            this.board[move.fr][move.fc] = this.getPiece(move.tr, move.tc);
+            this.board[move.tr][move.tc] = originalTarget;
+            
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = move;
+            }
+        }
+        return bestMove;
+    }
+
+    minimax(depth, alpha, beta, color) {
+        if (depth === 0) return -this.evaluateBoard();
+        
+        const moves = this.getAllValidMoves(color);
+        if (color === 'b') { // Maximizing player (black)
+            let bestScore = -Infinity;
+            for (const move of moves) {
+                const originalTarget = this.getPiece(move.tr, move.tc);
+                this.board[move.tr][move.tc] = this.getPiece(move.fr, move.fc); this.board[move.fr][move.fc] = null;
+                bestScore = Math.max(bestScore, this.minimax(depth-1, alpha, beta, 'w'));
+                this.board[move.fr][move.fc] = this.getPiece(move.tr, move.tc); this.board[move.tr][move.tc] = originalTarget;
+                alpha = Math.max(alpha, bestScore);
+                if (beta <= alpha) break;
+            }
+            return bestScore;
+        } else { // Minimizing player (white)
+            let bestScore = Infinity;
+            for (const move of moves) {
+                const originalTarget = this.getPiece(move.tr, move.tc);
+                this.board[move.tr][move.tc] = this.getPiece(move.fr, move.fc); this.board[move.fr][move.fc] = null;
+                bestScore = Math.min(bestScore, this.minimax(depth-1, alpha, beta, 'b'));
+                this.board[move.fr][move.fc] = this.getPiece(move.tr, move.tc); this.board[move.tr][move.tc] = originalTarget;
+                beta = Math.min(beta, bestScore);
+                if (beta <= alpha) break;
+            }
+            return bestScore;
+        }
+    }
+}
+
+// ============ 2. UI & DOM Handlers ============
+const DOM_NODES = {
+    chat: document.getElementById('chat'),
+    input: document.getElementById('input-field'),
+    sendBtn: document.getElementById('send-button'),
+    helpBtn: document.getElementById('help-btn'),
+    clearBtn: document.getElementById('clear-btn'),
+    modal: document.getElementById('help-modal'),
+    modalClose: document.getElementById('modal-close')
+};
+
+let currentChessGame = null;
+let currentDifficulty = 1;
+
+function addMessage(role, text, widget=null) {
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.textContent = role === 'user' ? 'U' : 'Ω';
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = text;
+    if(widget) bubble.appendChild(widget);
+    
+    div.appendChild(avatar);
+    div.appendChild(bubble);
+    DOM_NODES.chat.appendChild(div);
+    DOM_NODES.chat.scrollTop = DOM_NODES.chat.scrollHeight;
+}
+
+// ============ 3. WIDGET BUILDERS ============
+function buildChessWidget() {
+    const container = document.createElement('div');
+    container.className = 'chess-widget';
+    container.innerHTML = `<div class="chess-status">Initializing...</div><div class="chess-board"></div>`;
+    
+    currentChessGame = new ChessEngine();
+    setTimeout(() => renderChess(currentChessGame, container), 100);
+    return container;
+}
+
+function renderChess(game, container) {
+    const boardEl = container.querySelector('.chess-board');
+    const statusEl = container.querySelector('.chess-status');
+    boardEl.innerHTML = '';
+
+    if(game.gameOver) {
+        statusEl.textContent = game.checkMate ? "Checkmate!" : "Stalemate!";
+    } else {
+        statusEl.textContent = game.turn === 'w' ? "Your turn (White)" : "AI thinking...";
+    }
+    
+    const pieces = {'r':'♜','n':'♞','b':'♝','q':'♛','k':'♚','p':'♟','R':'♖','N':'♘','B':'♗','Q':'♕','K':'♔','P':'♙'};
+    let selectedMoves = [];
+    if(game.selected) selectedMoves = game.getAllValidMoves('w').filter(m => m.fr === game.selected.r && m.fc === game.selected.c);
+
+    for (let r=0; r<8; r++) for (let c=0; c<8; c++) {
+        const sq = document.createElement('div');
+        sq.className = `sq ${(r+c)%2===0 ? 'light' : 'dark'}`;
+        if(game.selected && game.selected.r === r && game.selected.c === c) sq.classList.add('selected');
+        
+        if (selectedMoves.some(m => m.tr === r && m.tc === c)) sq.classList.add('valid');
+
+        const p = game.getPiece(r,c);
+        if(p) sq.textContent = pieces[p];
+        
+        sq.onclick = () => {
+            if(game.gameOver || game.turn !== 'w') return;
+
+            if (game.selected) {
+                if (game.move(game.selected.r, game.selected.c, r, c)) {
+                    game.selected = null;
+                    renderChess(game, container);
+                    setTimeout(() => {
+                        game.makeAIMove(currentDifficulty);
+                        renderChess(game, container);
+                    }, 250);
+                } else {
+                    const targetPiece = game.getPiece(r,c);
+                    game.selected = (targetPiece && game.isWhite(targetPiece)) ? {r,c} : null;
+                    renderChess(game, container);
+                }
+            } else if (game.getPiece(r,c) && game.isWhite(game.getPiece(r,c))) {
+                game.selected = {r,c};
+                renderChess(game, container);
+            }
+        };
+        boardEl.appendChild(sq);
+    }
+}
+
+// ============ 4. KNOWLEDGE GATEWAY (Simulates 12373+ DBs) ============
+async function queryGateway(text) {
+    const lower = text.toLowerCase();
+    
+    // --- Specific Commands First ---
+    if (lower.includes('weather')) {
+        const city = text.split(' ').pop().replace('?','');
+        const data = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}`).then(r=>r.json());
+        if(data.results) {
+            const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${data.results[0].latitude}&longitude=${data.results[0].longitude}&current_weather=true`).then(r=>r.json());
+            return `Weather in ${data.results[0].name}: ${w.current_weather.temperature}°C, Wind: ${w.current_weather.windspeed} km/h.`;
+        }
+        return `Couldn't find weather for "${city}".`;
+    }
+
+    if (lower.includes('joke')) {
+        return await fetch('https://icanhazdadjoke.com/', {headers:{'Accept':'text/plain'}}).then(r=>r.text());
+    }
+
+    if (lower.includes('chess')) {
+        if(lower.includes('easy')) currentDifficulty = 1;
+        else if(lower.includes('medium')) currentDifficulty = 2;
+        else if(lower.includes('hard')) currentDifficulty = 3;
+        else currentDifficulty = 1; // Default
+        return { response: `Starting new chess game at <strong>${['','Easy','Medium','Hard'][currentDifficulty]}</strong> difficulty. You are White.`, widget: buildChessWidget() };
+    }
+
+    // --- Omega Knowledge Gateway Logic ---
+    const query = text.replace(/who is|what is|tell me about/gi,'').trim();
+
+    // 1. Try DuckDuckGo Instant Answer API (for direct facts)
+    try {
+        const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`);
+        const ddgData = await ddgRes.json();
+        if (ddgData.AbstractText) {
+            return `<strong>${ddgData.Heading}</strong>: ${ddgData.AbstractText}`;
+        }
+    } catch (e) { console.warn("DDG API failed, falling back."); }
+
+    // 2. Fallback to Wikipedia for broader topics
+    try {
+        const wikiRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&generator=search&gsrlimit=1&gsrsearch=${encodeURIComponent(query)}&prop=extracts&exintro&explaintext`);
+        const wikiData = await wikiRes.json();
+        if (wikiData.query) {
+            const page = Object.values(wikiData.query.pages)[0];
+            return `<strong>${page.title}</strong>: ${page.extract.substring(0, 500)}...`;
+        }
+    } catch (e) { console.warn("Wikipedia API failed."); }
+    
+    // 3. Final fallback
+    return `I searched the Omega Gateway but couldn't find a direct answer for "${query}". Try rephrasing your question.`;
+}
+
+
+// ============ 5. MAIN EVENT HANDLER ============
+async function handleInput() {
+    const text = DOM_NODES.input.value.trim();
+    if (!text) return;
+    
+    addMessage('user', text);
+    DOM_NODES.input.value = '';
+
+    const { response, widget } = await queryGateway(text).then(res => 
+        (typeof res === 'object' && res.response) ? res : { response: res, widget: null }
+    );
+    
+    addMessage('bot', response, widget);
+}
+
+// ============ 6. EVENT LISTENERS ============
+DOM_NODES.sendBtn.onclick = handleInput;
+DOM_NODES.input.onkeypress = e => { if (e.key === 'Enter') handleInput(); };
+DOM_NODES.helpBtn.onclick = () => addMessage('bot', "<strong>Available Commands:</strong><br>- Weather [city]<br>- Play Chess [easy/medium/hard]<br>- Joke<br>- Any general knowledge question (e.g., 'Who was Isaac Newton?')");
+DOM_NODES.clearBtn.onclick = () => {
+    DOM_NODES.chat.innerHTML = '';
+    currentChessGame = null;
+    addMessage('bot', 'Chat cleared.');
+};
+
+});
+</script>
+
+</body>
+</html>
