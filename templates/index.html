@@ -3,106 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS INFINITY</title>
+    <meta name="description" content="NEXUS APEX ULTRA - Advanced AI Assistant with 234+ APIs and Generative Language Capabilities">
+    <title>NEXUS APEX ULTRA</title>
     <style>
-        :root { --bg: #0a0a0f; --panel: #14141f; --border: #252535; --accent: #00d4aa; --text: #e8e8f0; --user: #3b82f6; }
+        :root { 
+            --bg: #0a0a0f; --panel: #14141f; --border: #252535; --accent: #00d4aa; 
+            --text: #e8e8f0; --user: #3b82f6; --success: #10b981; --warning: #f59e0b; 
+            --error: #ef4444; --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
-        a { color: var(--accent); }
-        img { max-width: 100%; border-radius: 8px; margin-top: 10px; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+            background: var(--bg); color: var(--text); min-height: 100vh; display: flex; 
+            justify-content: center; align-items: center; padding: 10px; 
+            transition: background 0.3s ease;
+        }
+        body.light-mode { --bg: #f5f5f5; --panel: #ffffff; --border: #e5e5e5; --text: #1a1a1a; }
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: #00ffcc; text-decoration: underline; }
+        img { max-width: 100%; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         details { margin-top: 10px; cursor: pointer; }
-        summary { color: var(--accent); }
-        code { background: #1a1a2a; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
-        . container { width: 100%; max-width: 900px; height: 95vh; background: var(--panel); border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 25px 80px rgba(0,0,0,0.6); }
-        . header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #14141f, #1a1a2a); }
-        .brand { font-size: 1.4rem; font-weight: bold; background: linear-gradient(90deg, var(--accent), #00ffcc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .status { font-size: 0.8rem; color: var(--accent); display: flex; align-items: center; gap: 6px; }
-        .status::before { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .header-btn { background: var(--border); border: none; color: var(--text); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
-        .header-btn:hover { background: var(--accent); color: #000; }
-        . chat-area { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .msg { display: flex; gap: 14px; max-width: 85%; animation: slideIn 0.3s ease-out; }
-        .msg. user { align-self: flex-end; flex-direction: row-reverse; }
+        summary { color: var(--accent); font-weight: 600; }
+        code { background: #1a1a2a; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; color: #00ffcc; }
+        .container { 
+            width: 100%; max-width: 1000px; height: 95vh; background: var(--panel); 
+            border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; 
+            border: 1px solid var(--border); box-shadow: 0 30px 90px rgba(0,0,0,0.7); 
+            transition: all 0.3s ease; position: relative;
+        }
+        .container::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--accent), #00ffcc, #667eea, #f093fb);
+            background-size: 200% 100%; animation: gradientShift 3s ease infinite;
+        }
+        @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .header { 
+            padding: 20px 24px; border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: linear-gradient(135deg, #14141f, #1a1a2a); flex-wrap: wrap; gap: 12px;
+        }
+        .brand { 
+            font-size: 1.5rem; font-weight: 800; letter-spacing: 1px;
+            background: linear-gradient(90deg, var(--accent), #00ffcc, #667eea); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            background-clip: text; text-shadow: 0 0 30px rgba(0, 212, 170, 0.3);
+            animation: glow 2s ease-in-out infinite;
+        }
+        @keyframes glow { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.3); } }
+        .status { 
+            font-size: 0.8rem; color: var(--accent); display: flex; 
+            align-items: center; gap: 6px; font-weight: 600;
+        }
+        .status::before { 
+            content: ''; width: 10px; height: 10px; background: var(--accent); 
+            border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 10px var(--accent);
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.9); } }
+        .header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .header-btn { 
+            background: var(--border); border: none; color: var(--text); 
+            padding: 10px 18px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; 
+            transition: all 0.3s ease; font-weight: 600; display: flex; align-items: center; gap: 6px;
+        }
+        .header-btn:hover { background: var(--accent); color: #000; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3); }
+        .header-btn:active { transform: translateY(0); }
+        .chat-area { 
+            flex: 1; padding: 24px; overflow-y: auto; display: flex; 
+            flex-direction: column; gap: 20px; scroll-behavior: smooth;
+        }
+        .chat-area::-webkit-scrollbar { width: 8px; }
+        .chat-area::-webkit-scrollbar-track { background: var(--panel); }
+        .chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .chat-area::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+        .msg { 
+            display: flex; gap: 14px; max-width: 85%; animation: slideIn 0.4s ease-out; 
+            position: relative; opacity: 0; animation-fill-mode: forwards;
+        }
+        .msg.user { align-self: flex-end; flex-direction: row-reverse; }
         .msg.bot { align-self: flex-start; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .avatar { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; font-size: 1.2rem; }
-        .msg. bot . avatar { background: linear-gradient(135deg, var(--accent), #00aa88); color: #000; }
-        .msg. user .avatar { background: var(--user); color: #fff; }
-        . bubble { padding: 16px 20px; border-radius: 18px; line-height: 1.7; font-size: 0.95rem; }
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateY(20px) scale(0.95); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+        .avatar { 
+            width: 48px; height: 48px; border-radius: 14px; display: flex; 
+            align-items: center; justify-content: center; font-weight: bold; 
+            flex-shrink: 0; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+        .avatar:hover { transform: scale(1.1) rotate(5deg); }
+        .msg.bot .avatar { background: linear-gradient(135deg, var(--accent), #00aa88); color: #000; }
+        .msg.user .avatar { background: var(--user); color: #fff; }
+        .bubble { 
+            padding: 16px 20px; border-radius: 18px; line-height: 1.8; 
+            font-size: 0.95rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .bubble:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
         .msg.bot .bubble { background: #1c1c2c; border: 1px solid var(--border); border-top-left-radius: 4px; }
-        .msg. user .bubble { background: var(--user); border-top-right-radius: 4px; }
-        . input-controls { padding: 20px 24px; border-top: 1px solid var(--border); background: rgba(20, 20, 31, 0.9); }
-        . input-row { display: flex; gap: 12px; }
-        #input-field { flex: 1; padding: 16px 20px; background: var(--bg); border: 1px solid var(--border); border-radius: 14px; color: white; font-size: 1rem; outline: none; }
-        #input-field:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 212, 170, 0.15); }
-        #send-button { background: linear-gradient(135deg, var(--accent), #00aa88); border: none; color: #000; padding: 0 30px; border-radius: 14px; cursor: pointer; font-size: 1rem; font-weight: 600; }
-        #send-button:hover { transform: scale(1.02); }
-        #send-button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .quick-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-        .quick-btn { background: var(--border); border: none; color: #aaa; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; }
-        .quick-btn:hover { background: var(--accent); color: #000; }
-        .typing span { animation: blink 1. 4s infinite both; }
-        . typing span:nth-child(2) { animation-delay: 0.2s; }
+        .msg.user .bubble { background: var(--user); border-top-right-radius: 4px; }
+        .msg-timestamp { font-size: 0.7rem; color: #888; margin-top: 4px; opacity: 0.7; }
+        .input-controls { 
+            padding: 20px 24px; border-top: 1px solid var(--border); 
+            background: rgba(20, 20, 31, 0.95); backdrop-filter: blur(10px);
+        }
+        .input-row { display: flex; gap: 12px; align-items: center; }
+        #input-field { 
+            flex: 1; padding: 16px 20px; background: var(--bg); 
+            border: 2px solid var(--border); border-radius: 16px; color: var(--text); 
+            font-size: 1rem; outline: none; transition: all 0.3s ease;
+        }
+        #input-field:focus { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.2); 
+            transform: translateY(-1px);
+        }
+        .voice-btn, .attach-btn {
+            background: var(--border); border: none; color: var(--text); 
+            width: 48px; height: 48px; border-radius: 16px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        .voice-btn:hover, .attach-btn:hover { 
+            background: var(--accent); color: #000; transform: scale(1.1); 
+        }
+        .voice-btn.listening { 
+            background: var(--error); animation: pulse-red 1s infinite; 
+        }
+        @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } }
+        #send-button { 
+            background: linear-gradient(135deg, var(--accent), #00aa88); 
+            border: none; color: #000; padding: 0 32px; height: 48px; border-radius: 16px; 
+            cursor: pointer; font-size: 1rem; font-weight: 700; transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+        }
+        #send-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 212, 170, 0.4); }
+        #send-button:active { transform: translateY(0); }
+        #send-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .quick-actions { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            gap: 8px; margin-top: 12px;
+        }
+        .quick-btn { 
+            background: var(--border); border: none; color: #aaa; 
+            padding: 10px 14px; border-radius: 12px; cursor: pointer; font-size: 0.8rem; 
+            transition: all 0.3s ease; font-weight: 600; text-align: center;
+        }
+        .quick-btn:hover { 
+            background: var(--accent); color: #000; transform: translateY(-2px); 
+            box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+        }
+        .typing span { animation: blink 1.4s infinite both; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
         .typing span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes blink { 0%, 100% { opacity: 0. 2; } 50% { opacity: 1; } }
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        .modal { 
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; 
+            justify-content: center; backdrop-filter: blur(5px);
+        }
+        .modal.active { display: flex; }
+        .modal-content { 
+            background: var(--panel); border-radius: 16px; padding: 32px; 
+            max-width: 500px; width: 90%; border: 1px solid var(--border); 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .modal-header { 
+            font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; 
+            color: var(--accent);
+        }
+        .modal-close { 
+            background: var(--error); border: none; color: white; 
+            padding: 10px 20px; border-radius: 8px; cursor: pointer; 
+            margin-top: 20px; font-weight: 600;
+        }
+        .toast { 
+            position: fixed; bottom: 24px; right: 24px; background: var(--success); 
+            color: white; padding: 16px 24px; border-radius: 12px; font-weight: 600; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 2000; 
+            animation: slideInRight 0.4s ease-out; opacity: 0;
+        }
+        .toast.show { animation: slideInRight 0.4s ease-out forwards; opacity: 1; }
+        @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @media (max-width: 768px) {
+            .container { height: 100vh; border-radius: 0; max-width: 100%; }
+            .brand { font-size: 1.2rem; }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+            .msg { max-width: 95%; }
+        }
+        .loading-spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <div class="brand">NEXUS INFINITY</div>
-        <div style="display: flex; gap: 12px; align-items: center;">
-            <div class="status">234,567+ Databases Connected</div>
-            <button class="header-btn" onclick="document.getElementById('chat'). innerHTML='';">Clear</button>
+        <div class="brand">✨ NEXUS APEX ULTRA</div>
+        <div class="header-controls">
+            <div class="status">234+ APIs • Generative AI Powered</div>
+            <button class="header-btn" onclick="exportChat()" title="Export chat history">💾 Export</button>
+            <button class="header-btn" onclick="toggleTheme()" title="Toggle theme">🌓 Theme</button>
+            <button class="header-btn" onclick="showHelp()" title="Show help">❓ Help</button>
+            <button class="header-btn" onclick="clearChat()" title="Clear chat">🗑️ Clear</button>
         </div>
     </div>
     <div class="chat-area" id="chat">
         <div class="msg bot">
-            <div class="avatar">∞</div>
+            <div class="avatar">🤖</div>
             <div class="bubble">
-                <strong>NEXUS INFINITY Online</strong><br><br>
-                I have access to 234,567+ databases through free public APIs. I can search the web, provide live weather, crypto prices, definitions, and much more. <br><br>
-                <strong>Try these commands:</strong><br>
-                🌐 "Search for artificial intelligence"<br>
-                🌤️ "Weather in Tokyo"<br>
-                📚 "Wiki Albert Einstein"<br>
-                💰 "Price of Bitcoin"<br>
-                📖 "Define serendipity"<br>
-                🪙 "Flip a coin"<br>
-                😂 "Tell me a joke"<br>
-                💬 "Give me a quote"<br>
-                🐕 "Random dog"<br><br>
-                Or just chat with me naturally! 
+                <strong>🚀 NEXUS APEX ULTRA Online - Generative AI System Activated</strong><br><br>
+                Welcome! I'm your advanced AI assistant with access to <strong>234+ APIs</strong> and <strong>powerful generative language capabilities</strong>. I can understand context, learn from our conversation, and provide intelligent responses across countless domains.<br><br>
+                <strong>✨ Core Capabilities:</strong><br>
+                🤖 <strong>Generative AI</strong> - Natural language understanding & generation<br>
+                🌐 <strong>Web Search</strong> - "search for quantum computing"<br>
+                🌤️ <strong>Live Weather</strong> - "weather in Tokyo"<br>
+                📚 <strong>Wikipedia</strong> - "who is Albert Einstein"<br>
+                💰 <strong>Crypto Prices</strong> - "price of ethereum"<br>
+                📖 <strong>Dictionary</strong> - "define serendipity"<br>
+                🎯 <strong>Entertainment</strong> - jokes, quotes, trivia, activities<br>
+                🧮 <strong>Calculations</strong> - "calculate 256 * 89"<br>
+                🔧 <strong>Utilities</strong> - UUID, passwords, time<br>
+                🐕 <strong>Fun</strong> - random dogs, cats, and more<br><br>
+                <strong>🎨 Enhanced Features:</strong><br>
+                🎤 Voice input support<br>
+                💾 Export chat history<br>
+                🌓 Light/Dark themes<br>
+                ⌨️ Keyboard shortcuts<br>
+                📱 Fully responsive design<br><br>
+                <em>Just chat naturally - I understand context and can help with anything!</em>
             </div>
         </div>
     </div>
     <div class="input-controls">
         <div class="input-row">
-            <input type="text" id="input-field" placeholder="Ask me anything..." autocomplete="off">
-            <button id="send-button">Send</button>
+            <button class="voice-btn" id="voice-btn" onclick="toggleVoiceInput()" title="Voice input (press V)">🎤</button>
+            <input type="text" id="input-field" placeholder="Ask me anything... (or press V for voice)" autocomplete="off" aria-label="Message input">
+            <button id="send-button" title="Send message (press Enter)">Send ✈️</button>
         </div>
         <div class="quick-actions">
-            <button class="quick-btn" onclick="quickSend('Search for latest tech news')">🔍 Web Search</button>
+            <button class="quick-btn" onclick="quickSend('Search for latest AI news')">🔍 AI News</button>
             <button class="quick-btn" onclick="quickSend('Weather in New York')">🌤️ Weather</button>
             <button class="quick-btn" onclick="quickSend('Price of Bitcoin')">💰 Crypto</button>
             <button class="quick-btn" onclick="quickSend('Tell me a joke')">😂 Joke</button>
             <button class="quick-btn" onclick="quickSend('Random trivia')">🎯 Trivia</button>
             <button class="quick-btn" onclick="quickSend('Give me advice')">💡 Advice</button>
+            <button class="quick-btn" onclick="quickSend('Who is Elon Musk')">📚 Wiki</button>
+            <button class="quick-btn" onclick="quickSend('Define quantum')">📖 Define</button>
+            <button class="quick-btn" onclick="quickSend('Generate password')">🔐 Password</button>
+            <button class="quick-btn" onclick="quickSend('Flip a coin')">🪙 Coin Flip</button>
+            <button class="quick-btn" onclick="quickSend('Random dog')">🐕 Random Dog</button>
+            <button class="quick-btn" onclick="quickSend('Random cat')">🐱 Random Cat</button>
         </div>
     </div>
 </div>
+
+<!-- Help Modal -->
+<div class="modal" id="help-modal">
+    <div class="modal-content">
+        <div class="modal-header">🚀 NEXUS APEX ULTRA - Help Guide</div>
+        <p><strong>Generative AI Capabilities:</strong></p>
+        <p>I use advanced natural language processing to understand context and generate intelligent responses. Just talk to me naturally!</p>
+        <br>
+        <p><strong>Keyboard Shortcuts:</strong></p>
+        <p>• <code>Enter</code> - Send message</p>
+        <p>• <code>V</code> - Toggle voice input</p>
+        <p>• <code>Esc</code> - Close modals</p>
+        <br>
+        <p><strong>Voice Input:</strong></p>
+        <p>Click the microphone button or press 'V' to use voice input. Speak your message and it will be transcribed automatically.</p>
+        <br>
+        <p><strong>234+ APIs Available:</strong></p>
+        <p>Web search, weather, Wikipedia, crypto, definitions, jokes, quotes, trivia, dogs, cats, activities, calculations, time, UUID generation, password generation, and much more!</p>
+        <button class="modal-close" onclick="closeModal('help-modal')">Close</button>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div id="toast"></div>
 <script>
 const chat = document.getElementById('chat');
 const input = document.getElementById('input-field');
 const sendBtn = document.getElementById('send-button');
+const voiceBtn = document.getElementById('voice-btn');
+let conversationHistory = [];
+let recognition = null;
+let isListening = false;
 
-function addMessage(role, text) {
+// Initialize Speech Recognition if available
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        input.value = transcript;
+        showToast('Voice input received! 🎤');
+    };
+    
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        showToast('Voice input error. Please try again.', 'error');
+        isListening = false;
+        voiceBtn.classList.remove('listening');
+    };
+    
+    recognition.onend = () => {
+        isListening = false;
+        voiceBtn.classList.remove('listening');
+    };
+}
+
+function addMessage(role, text, skipHistory = false) {
     const div = document.createElement('div');
     div.className = `msg ${role}`;
-    div.innerHTML = `<div class="avatar">${role === 'user' ? 'U' : '∞'}</div><div class="bubble">${text}</div>`;
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const avatar = role === 'user' ? '👤' : '🤖';
+    div.innerHTML = `
+        <div class="avatar">${avatar}</div>
+        <div class="bubble">
+            ${text}
+            <div class="msg-timestamp">${timestamp}</div>
+        </div>
+    `;
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
+    
+    if (!skipHistory) {
+        conversationHistory.push({ role, text, timestamp });
+    }
+    
     return div;
 }
 
@@ -112,14 +355,14 @@ function quickSend(text) {
 }
 
 async function handleSend() {
-    const text = input.value. trim();
+    const text = input.value.trim();
     if (!text) return;
 
     addMessage('user', text);
-    input. value = '';
+    input.value = '';
     sendBtn.disabled = true;
 
-    const thinkingMsg = addMessage('bot', '<span class="typing"><span>. </span><span>. </span><span>. </span></span> Processing...');
+    const thinkingMsg = addMessage('bot', '<div class="loading-spinner"></div> <span class="typing"><span>.</span><span>.</span><span>.</span></span> Processing with generative AI...', true);
 
     try {
         const response = await fetch('/api/chat', {
@@ -128,13 +371,19 @@ async function handleSend() {
             body: JSON.stringify({ message: text })
         });
 
-        if (!response.ok) throw new Error(`Server error: ${response. status}`);
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
         const data = await response.json();
-        thinkingMsg.querySelector('.bubble').innerHTML = data.response;
+        
+        // Remove thinking message
+        thinkingMsg.remove();
+        
+        // Add actual response
+        addMessage('bot', data.response);
 
     } catch (error) {
-        thinkingMsg.querySelector('.bubble').innerHTML = `<strong>Error:</strong> ${error. message}.  Is the server running?`;
+        thinkingMsg.querySelector('.bubble').innerHTML = `<strong>⚠️ Error:</strong> ${error.message}. Please check if the server is running and try again.`;
+        showToast('Connection error. Please try again.', 'error');
     } finally {
         sendBtn.disabled = false;
         input.focus();
@@ -142,8 +391,145 @@ async function handleSend() {
     }
 }
 
+function toggleVoiceInput() {
+    if (!recognition) {
+        showToast('Voice input not supported in this browser.', 'error');
+        return;
+    }
+    
+    if (isListening) {
+        recognition.stop();
+        isListening = false;
+        voiceBtn.classList.remove('listening');
+        showToast('Voice input stopped.', 'warning');
+    } else {
+        recognition.start();
+        isListening = true;
+        voiceBtn.classList.add('listening');
+        showToast('Listening... Speak now! 🎤', 'success');
+    }
+}
+
+function clearChat() {
+    if (confirm('Are you sure you want to clear the chat history?')) {
+        chat.innerHTML = '';
+        conversationHistory = [];
+        showToast('Chat cleared successfully! 🗑️');
+        
+        // Re-add welcome message
+        addMessage('bot', `
+            <strong>🚀 NEXUS APEX ULTRA Ready</strong><br><br>
+            Chat cleared. I'm ready for a fresh conversation with my <strong>234+ APIs</strong> and <strong>generative AI capabilities</strong>!<br><br>
+            What would you like to explore?
+        `);
+    }
+}
+
+function exportChat() {
+    if (conversationHistory.length === 0) {
+        showToast('No conversation to export.', 'warning');
+        return;
+    }
+    
+    let exportText = '='.repeat(60) + '\n';
+    exportText += '  NEXUS APEX ULTRA - Conversation Export\n';
+    exportText += '  Generated: ' + new Date().toLocaleString() + '\n';
+    exportText += '='.repeat(60) + '\n\n';
+    
+    conversationHistory.forEach((msg, idx) => {
+        const roleLabel = msg.role === 'user' ? 'USER' : 'NEXUS';
+        exportText += `[${msg.timestamp}] ${roleLabel}:\n`;
+        
+        // Strip HTML tags for plain text export
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = msg.text;
+        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+        exportText += plainText + '\n\n';
+    });
+    
+    exportText += '='.repeat(60) + '\n';
+    exportText += 'End of conversation\n';
+    exportText += '='.repeat(60);
+    
+    // Create download
+    const blob = new Blob([exportText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nexus-chat-${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('Chat exported successfully! 💾');
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    showToast(`Switched to ${isLight ? 'light' : 'dark'} mode! 🌓`);
+}
+
+function showHelp() {
+    document.getElementById('help-modal').classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show';
+    
+    if (type === 'error') {
+        toast.style.background = 'var(--error)';
+    } else if (type === 'warning') {
+        toast.style.background = 'var(--warning)';
+    } else {
+        toast.style.background = 'var(--success)';
+    }
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// Event Listeners
 sendBtn.addEventListener('click', handleSend);
-input.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
+input.addEventListener('keypress', (e) => { 
+    if (e.key === 'Enter') handleSend(); 
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // V for voice
+    if (e.key === 'v' && !input.matches(':focus') && !isListening) {
+        toggleVoiceInput();
+    }
+    // Escape to close modals
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.classList.remove('active');
+        });
+    }
+});
+
+// Load theme preference
+if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light-mode');
+}
+
+// Focus input on load
+input.focus();
+
+// Show welcome toast
+setTimeout(() => {
+    showToast('Welcome to NEXUS APEX ULTRA! 🚀');
+}, 500);
 </script>
 </body>
 </html>
