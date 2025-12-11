@@ -97,7 +97,7 @@ Just ask naturally - I understand context and can help with anything!"""
         f"Interesting topic! To give you the best answer about '{prompt}', try using 'search' or 'wiki' commands for detailed, real-time information.",
         f"I'd love to help with '{prompt}'. For comprehensive information, use commands like 'search [topic]', 'wiki [topic]', or ask me for jokes, quotes, weather, and more!"
     ]
-    return random. choice(responses)
+    return random.choice(responses)
 
 # =============================================================================
 # FREE WEB SEARCH - DuckDuckGo Instant Answer API (No Key Required)
@@ -119,9 +119,9 @@ def search_web(query):
         # Abstract (main answer)
         if data.get("AbstractText"):
             results.append({
-                "title": data. get("Heading", "Result"),
+                "title": data.get("Heading", "Result"),
                 "snippet": data["AbstractText"],
-                "url": data. get("AbstractURL", "")
+                "url": data.get("AbstractURL", "")
             })
         
         # Related topics
@@ -157,7 +157,7 @@ def search_wikipedia(query):
     Searches Wikipedia for information on any topic.
     """
     try:
-        response = requests. get(
+        response = requests.get(
             "https://en.wikipedia.org/w/api.php",
             params={
                 "action": "query",
@@ -174,7 +174,7 @@ def search_wikipedia(query):
         )
         data = response.json()
         
-        if data. get("query") and data["query"]. get("pages"):
+        if data.get("query") and data["query"].get("pages"):
             page = list(data["query"]["pages"].values())[0]
             title = page.get("title", "Unknown")
             extract = page.get("extract", "No information found.")[:600]
@@ -194,12 +194,12 @@ def get_definition(word):
     """
     try:
         response = requests.get(
-            f"https://api. dictionaryapi.dev/api/v2/entries/en/{word}",
+            f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}",
             timeout=10
         )
         if response.status_code == 200:
-            data = response. json()[0]
-            word_name = data. get("word", word)
+            data = response.json()[0]
+            word_name = data.get("word", word)
             phonetic = data.get("phonetic", "")
             
             result = f"<strong>📖 {word_name}</strong> {phonetic}<br><br>"
@@ -208,7 +208,7 @@ def get_definition(word):
                 pos = meaning.get("partOfSpeech", "")
                 result += f"<em>({pos})</em><br>"
                 for defn in meaning.get("definitions", [])[:2]:
-                    result += f"• {defn. get('definition', '')}<br>"
+                    result += f"• {defn.get('definition', '')}<br>"
                 result += "<br>"
             
             return result
@@ -227,7 +227,7 @@ def get_weather(city):
     try:
         # First, geocode the city
         geo_response = requests.get(
-            "https://geocoding-api. open-meteo. com/v1/search",
+            "https://geocoding-api.open-meteo.com/v1/search",
             params={"name": city, "count": 1},
             timeout=10
         )
@@ -254,11 +254,11 @@ def get_weather(city):
             timeout=10
         )
         weather_data = weather_response.json()
-        current = weather_data. get("current_weather", {})
+        current = weather_data.get("current_weather", {})
         hourly = weather_data.get("hourly", {})
         
         temp = current.get("temperature", "N/A")
-        windspeed = current. get("windspeed", "N/A")
+        windspeed = current.get("windspeed", "N/A")
         weathercode = current.get("weathercode", 0)
         
         # Weather code interpretation
@@ -317,7 +317,7 @@ def get_crypto_price(coin):
         "bnb": "binancecoin", "dot": "polkadot"
     }
     
-    coin_id = coin_map. get(coin.lower(), coin. lower())
+    coin_id = coin_map. get(coin.lower(), coin.lower())
     
     try:
         response = requests.get(
@@ -388,7 +388,7 @@ def get_advice():
     try:
         response = requests.get("https://api.adviceslip.com/advice", timeout=5)
         if response.status_code == 200:
-            data = response. json()
+            data = response.json()
             return f"💡 <strong>Advice:</strong> {data['slip']['advice']}"
     except:
         pass
@@ -403,9 +403,9 @@ def get_advice():
 def get_trivia():
     """Gets a random trivia question."""
     try:
-        response = requests. get("https://opentdb.com/api.php? amount=1&type=multiple", timeout=5)
+        response = requests.get("https://opentdb.com/api.php? amount=1&type=multiple", timeout=5)
         if response.status_code == 200:
-            data = response. json()
+            data = response.json()
             if data.get("results"):
                 q = data["results"][0]
                 import html
@@ -421,9 +421,9 @@ def get_trivia():
 def get_random_dog():
     """Gets a random dog image."""
     try:
-        response = requests. get("https://dog.ceo/api/breeds/image/random", timeout=5)
+        response = requests.get("https://dog.ceo/api/breeds/image/random", timeout=5)
         if response.status_code == 200:
-            data = response. json()
+            data = response.json()
             return f"🐕 <strong>Random Dog:</strong><br><br><img src='{data['message']}' style='max-width:100%;border-radius:8px;'>"
     except:
         return "🐕 Couldn't fetch a dog image right now. Try again!"
@@ -432,7 +432,7 @@ def get_random_cat():
     """Gets a random cat image."""
     try:
         response = requests.get("https://api.thecatapi.com/v1/images/search", timeout=5)
-        if response. status_code == 200:
+        if response.status_code == 200:
             data = response.json()
             return f"🐱 <strong>Random Cat:</strong><br><br><img src='{data[0]['url']}' style='max-width:100%;border-radius:8px;'>"
     except:
@@ -442,7 +442,7 @@ def get_bored_activity():
     """Gets a random activity suggestion."""
     try:
         response = requests.get("https://www.boredapi.com/api/activity", timeout=5)
-        if response. status_code == 200:
+        if response.status_code == 200:
             data = response.json()
             return f"🎯 <strong>Activity Suggestion:</strong><br><br>{data['activity']}<br><br><em>Type: {data['type']. capitalize()} | Participants: {data['participants']}</em>"
     except:
@@ -787,7 +787,7 @@ def process_command(text):
     The main NLP router that analyzes user input and routes to appropriate functions.
     Specific commands are ALWAYS prioritized over generative AI fallback.
     """
-    lower = text. lower(). strip()
+    lower = text.lower(). strip()
     
     # --- SEARCH COMMANDS (Highest Priority) ---
     if any(word in lower for word in ['search', 'google', 'look up', 'find']):
@@ -796,7 +796,7 @@ def process_command(text):
     
     # --- WIKIPEDIA COMMANDS ---
     if lower.startswith('wiki ') or 'wikipedia' in lower:
-        query = lower. replace('wiki ', '').replace('wikipedia', '').strip()
+        query = lower.replace('wiki ', '').replace('wikipedia', '').strip()
         return {"response": search_wikipedia(query) if query else "What topic would you like to look up on Wikipedia?"}
     
     # --- WHO/WHAT IS QUESTIONS ---
@@ -806,7 +806,7 @@ def process_command(text):
     
     # --- WEATHER ---
     if 'weather' in lower:
-        match = re.search(r'weather\s+(? :in|for|at)?\s*(.+)', lower)
+        match = re.search(r'weather\s+(?:in|for|at)?\s*(.+)', lower)
         if match:
             city = match.group(1).strip()
         else:
