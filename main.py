@@ -791,7 +791,7 @@ def process_command(text):
     
     # --- SEARCH COMMANDS (Highest Priority) ---
     if any(word in lower for word in ['search', 'google', 'look up', 'find']):
-        query = re.sub(r'\b(search|google|look up|find|for|about)\b', '', lower, flags=re. IGNORECASE). strip()
+        query = re.sub(r'\b(search|google|look up|find|for|about)\b', '', lower, flags=re. IGNORECASE).strip()
         return {"response": search_web(query) if query else "What would you like me to search for?"}
     
     # --- WIKIPEDIA COMMANDS ---
